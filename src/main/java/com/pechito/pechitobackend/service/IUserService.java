@@ -5,10 +5,13 @@ import com.pechito.pechitobackend.model.Section;
 import com.pechito.pechitobackend.model.User;
 import com.pechito.pechitobackend.model.WorkoutSession;
 
+import java.util.Optional;
+
 public interface IUserService {
     public void saveUser(User user);
     public Iterable<User> getAllUsers();
     public User getUserById(Long id);
+    public User getUserByUsername(String username);
     public User getUserByEmail(String email);
     public void deleteUser(Long id);
     public void editUser(Long id, String username, String password, String email);

@@ -1,6 +1,7 @@
 package com.pechito.pechitobackend.controller;
 
 import com.pechito.pechitobackend.model.Exercise;
+import com.pechito.pechitobackend.model.WorkoutType;
 import com.pechito.pechitobackend.service.IExerciseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -44,9 +45,10 @@ public class ExerciseController {
                              @RequestParam(required = false) String description,
                              @RequestParam(required = false) String videoUrl,
                              @RequestParam(required = false) Duration time,
-                             @RequestParam(required = false) String repetitions) {
+                             @RequestParam(required = false) String repetitions,
+                             @RequestParam(required = false) WorkoutType type) {
 
-        exerciseService.editExercise(id, name, description, videoUrl, time, repetitions);
+        exerciseService.editExercise(id, name, description, videoUrl, time, repetitions, type);
     }
 
 

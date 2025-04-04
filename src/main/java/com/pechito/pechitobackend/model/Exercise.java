@@ -1,9 +1,6 @@
 package com.pechito.pechitobackend.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.time.Duration;
 
@@ -17,16 +14,19 @@ public class Exercise {
     private String videoUrl;
     private Duration time;
     private String repetitions;
+    @Enumerated(EnumType.STRING)
+    private WorkoutType type;
 
     public Exercise() {}
 
-    public Exercise(Long id, String name, String description, String videoUrl, Duration time, String repetitions) {
+    public Exercise(Long id, String name, String description, String videoUrl, Duration time, String repetitions, WorkoutType type) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.videoUrl = videoUrl;
         this.time = time;
         this.repetitions = repetitions;
+        this.type = type;
     }
 
     public Long getId() {
@@ -75,5 +75,13 @@ public class Exercise {
 
     public void setRepetitions(String repetitions) {
         this.repetitions = repetitions;
+    }
+
+    public WorkoutType getType() {
+        return type;
+    }
+
+    public void setType(WorkoutType type) {
+        this.type = type;
     }
 }

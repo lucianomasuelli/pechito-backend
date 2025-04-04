@@ -9,6 +9,7 @@ public interface IWorkoutService {
     public WorkoutSession saveWorkout(WorkoutSession workout);
     public Iterable<WorkoutSession> getAllWorkouts();
     public WorkoutSession getWorkoutById(Long id);
+    public WorkoutSession getWorkoutByName(String name);
     public void deleteWorkout(Long id);
     public void editWorkout(Long id, String name, String description, WorkoutType type);
     public void editWorkout(WorkoutSession workout);

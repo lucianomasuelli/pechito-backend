@@ -1,5 +1,7 @@
 package com.pechito.pechitobackend.service;
 
+import com.pechito.pechitobackend.exceptions.UserAlreadyExistsException;
+import com.pechito.pechitobackend.exceptions.UserNotFoundException;
 import com.pechito.pechitobackend.model.Exercise;
 import com.pechito.pechitobackend.model.Section;
 import com.pechito.pechitobackend.model.User;
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService implements IUserService{
@@ -20,12 +23,19 @@ public class UserService implements IUserService{
     private IWorkoutService workoutService;
 
     @Autowired
+    private  ISectionService sectionService;
+
+    @Autowired
     private IExerciseService exerciseService;
 
 
     @Override
     public void saveUser(User user) {
-        userRepository.save(user);
+        if (userRepository.findUserByUsername(user.getUsername()).isPresent() ||
+                userRepository.findUserByEmail(user.getEmail()) != null) {
+            System.out.println("User already exists");
+            throw new UserAlreadyExistsException();
+        }
     }
 
     @Override
@@ -35,16 +45,27 @@ public class UserService implements IUserService{
 
     @Override
     public User getUserById(Long id) {
-        return userRepository.findById(id).orElse(null);
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+    }
+
+    @Override
+    public User getUserByUsername(String username) {
+        return userRepository.findUserByUsername(username).orElseThrow(() -> new UserNotFoundException());
     }
 
     @Override
     public User getUserByEmail(String email) {
-        return userRepository.findUserByEmail(email);
+        User user = userRepository.findUserByEmail(email);
+        if(user == null){
+            throw new UserNotFoundException(email);
+        } else {
+            return user;
+        }
     }
 
     @Override
     public void deleteUser(Long id) {
+        this.getUserById(id);  //Checks if the user exists
         userRepository.deleteById(id);
     }
 
@@ -65,6 +86,7 @@ public class UserService implements IUserService{
 
     @Override
     public void editUser(User user) {
+        this.getUserByEmail(user.getEmail());
         this.saveUser(user);
     }
 
@@ -79,21 +101,31 @@ public class UserService implements IUserService{
 
     @Override
     public void addWorkoutSessionToUser(Long userId, Long workoutSessionId) {
-
+        User user = this.getUserById(userId);
+        WorkoutSession workoutSession = workoutService.getWorkoutById(workoutSessionId);
+        List<WorkoutSession> workouts = user.getWorkouts();
+        workouts.add(workoutSession);
+        user.setWorkouts(workouts);
+        this.saveUser(user);
     }
 
     @Override
     public void addSectionToUser(Long userId, Section section) {
         User user = this.getUserById(userId);
         List<Section> sections = user.getSections();
-        sections.add(section);
+        sections.add(sectionService.saveSection(section));
         user.setSections(sections);
         this.saveUser(user);
     }
 
     @Override
     public void addSectionToUser(Long userId, Long sectionId) {
-
+        User user = this.getUserById(userId);
+        Section section = sectionService.getSectionById(sectionId);
+        List<Section> sections = user.getSections();
+        sections.add(section);
+        user.setSections(sections);
+        this.saveUser(user);
     }
 
     @Override
@@ -116,6 +148,4 @@ public class UserService implements IUserService{
         user.setExercises(exercises);
         this.saveUser(user);
     }
-
-
 }

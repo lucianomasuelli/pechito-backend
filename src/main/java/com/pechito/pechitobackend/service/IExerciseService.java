@@ -1,9 +1,7 @@
 package com.pechito.pechitobackend.service;
 
+import com.pechito.pechitobackend.model.*;
 import com.pechito.pechitobackend.model.Exercise;
-import com.pechito.pechitobackend.model.Section;
-import com.pechito.pechitobackend.model.Exercise;
-import com.pechito.pechitobackend.model.WorkoutSession;
 
 import java.time.Duration;
 import java.util.List;
@@ -14,5 +12,5 @@ public interface IExerciseService {
     public Exercise getExerciseById(Long id);
     public void deleteExercise(Long id);
     public void updateExercise(Exercise exercise);
-    public void editExercise(Long id, String name, String description, String videoUrl, Duration time, String repetitions);
+    public void editExercise(Long id, String name, String description, String videoUrl, Duration time, String repetitions, WorkoutType type);
 }

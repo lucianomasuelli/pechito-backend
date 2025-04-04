@@ -1,5 +1,7 @@
 package com.pechito.pechitobackend.service;
 
+import com.pechito.pechitobackend.exceptions.WorkoutAlreadyExistsException;
+import com.pechito.pechitobackend.exceptions.WorkoutNotFoundException;
 import com.pechito.pechitobackend.model.Exercise;
 import com.pechito.pechitobackend.model.Section;
 import com.pechito.pechitobackend.model.WorkoutSession;
@@ -18,7 +20,13 @@ public class WorkoutService implements IWorkoutService{
 
     @Override
     public WorkoutSession saveWorkout(WorkoutSession workout) {
-        return workoutRepository.save(workout);
+        try {
+            this.getWorkoutById(workout.getId());
+            throw new WorkoutAlreadyExistsException(workout.getName());
+        } catch (WorkoutNotFoundException e){
+            //If the workout does not exist, it is created
+            return workoutRepository.save(workout);
+        }
     }
 
     @Override
@@ -28,11 +36,22 @@ public class WorkoutService implements IWorkoutService{
 
     @Override
     public WorkoutSession getWorkoutById(Long id) {
-        return workoutRepository.findById(id).orElse(null);
+        return workoutRepository.findById(id).orElseThrow(() -> new WorkoutNotFoundException(id));
+    }
+
+    @Override
+    public WorkoutSession getWorkoutByName(String name) {
+        WorkoutSession workoutSession = workoutRepository.findWorkoutSessionByName(name);
+        if(workoutSession == null){
+            throw new WorkoutNotFoundException(name);
+        } else {
+            return workoutSession;
+        }
     }
 
     @Override
     public void deleteWorkout(Long id) {
+        this.getWorkoutById(id); //Checks if the workout exists
         workoutRepository.deleteById(id);
     }
 
@@ -40,7 +59,13 @@ public class WorkoutService implements IWorkoutService{
     public void editWorkout(Long id, String name, String description, WorkoutType type) {
         WorkoutSession workout = this.getWorkoutById(id);
         if(name != null){
-            workout.setName(name);
+            try{
+                this.getWorkoutByName(name);
+                throw new WorkoutAlreadyExistsException(name);
+            } catch (WorkoutNotFoundException e){
+                //If the workout does not exist, the name is changed
+                workout.setName(name);
+            }
         }
         if(description != null){
             workout.setDescription(description);
@@ -53,6 +78,7 @@ public class WorkoutService implements IWorkoutService{
 
     @Override
     public void editWorkout(WorkoutSession workout) {
+        WorkoutSession workoutSession = this.getWorkoutByName(workout.getName());
         this.saveWorkout(workout);
     }
 
